@@ -1,0 +1,54 @@
+stages:
+  - build
+  - deploy
+.merge_result: &merge_result >
+  [ "${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-}" != "" ]
+  && git config --global user.email "you@example.com"
+  && git config --global user.name "Your Name"
+  && git fetch
+  && git checkout "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+  && git merge --squash -v -
+  && git diff --stat --staged
+build-job:
+  image: node:18.16.1 #node ver
+  stage: build
+  tags:
+    - build
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main" #CIが発火するターゲットブランチ
+  script:
+    - *merge_result
+    - npm install
+    - npm run build
+  variables:
+    GIT_CLEAN_FLAGS: -ffdx -e node_modules/
+    FF_USE_FASTZIP: "true"
+    API_KEY: ${API_KEY}
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/dist/
+  cache:
+    paths:
+      - node_modules/
+deploy-job:
+  image:
+    name: alpine:latest
+  stage: deploy
+  tags:
+    - build
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+    - when: manual
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME != "main"
+    - when: never
+  before_script:
+    - "which ssh-agent || ( apk update && apk add openssh )"
+    - "which rsync || ( apk add rsync)"
+    - eval $(ssh-agent -s)
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - cat ${DEV_KEY} | tr -d '\r' | ssh-add -
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+  script:
+    - mkdir -p ${DEV_DIR}
+    - rsync -rltoDv -e "ssh" --delete --checksum ${CI_PROJECT_DIR}/dist/ ${DEV_USER}@${DEV_DOMAIN}:${DEV_DIR} #CI_PROJECT_DIR

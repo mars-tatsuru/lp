@@ -1,0 +1,67 @@
+---
+import List from "../components/List.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="大黒屋テスト">
+  <main>
+    <h1>大黒屋テスト</h1>
+    <List title="商品一覧" :load/>
+  </main>
+</Layout>
+
+<style>
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    color: #c88e8e;
+    line-height: 1.6;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    margin-top: 70px;
+  }
+
+  main {
+    margin: auto;
+    padding: 1em;
+    max-width: 60ch;
+    background-color: #dbdbdb;
+    box-shadow: 0 7px 7px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+  }
+
+  h1 {
+    font-size: 2.5em;
+    color: #334257;
+    text-align: center;
+  }
+
+  ul {
+    display: flex;
+  }
+
+  li {
+    margin-bottom: 10px;
+    list-style: none;
+  }
+
+  .pageList__link {
+    color: #6884bd;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  a:hover {
+    color: #25603a;
+    text-decoration: underline;
+  }
+
+  .contentsList {
+    display: flex;
+    gap: 5px;
+  }
+
+  .contentsLink {
+    color: #c88e8e;
+  }
+</style>
