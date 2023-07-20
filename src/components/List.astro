@@ -14,7 +14,7 @@ const valuesArray = data?.values?.slice(1);
 <ul class="list-wrap">
   {
     //mapで配列を展開、0番目はNo.なので1番目から
-    valuesArray.map((value: any) => (
+    valuesArray?.map((value: any) => (
       <li class="list">
         <p>{value[1]}</p>
         <p>{value[2]}</p>
